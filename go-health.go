@@ -1,18 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"time"
-	"strings"
-	"io/ioutil"
-	"encoding/xml"
 	"encoding/csv"
+	"encoding/xml"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
+	"time"
 )
 
 type Query struct {
 	ExportDate ExportDate
-	Record	[]Record
+	Record     []Record
 }
 
 type ExportDate struct {
@@ -20,28 +20,28 @@ type ExportDate struct {
 }
 
 type Record struct {
-	Type string `xml:"type,attr"`
-	SourceName string `xml:"sourceName,attr"`
+	Type          string `xml:"type,attr"`
+	SourceName    string `xml:"sourceName,attr"`
 	SourceVersion string `xml:"sourceVersion,attr"`
-	Device string `xml:"device,attr"`
-	Unit string `xml:"unit,attr"`
-	CreationDate string `xml:"creationDate,attr"`
-	StartDate string `xml:"startDate,attr"` 
-	EndDate string `xml:"endDate,attr"`
-	Value string `xml:"value,attr"`
+	Device        string `xml:"device,attr"`
+	Unit          string `xml:"unit,attr"`
+	CreationDate  string `xml:"creationDate,attr"`
+	StartDate     string `xml:"startDate,attr"`
+	EndDate       string `xml:"endDate,attr"`
+	Value         string `xml:"value,attr"`
 }
 
 func types() []string {
-	
-	types := []string {
-		"HKQuantityTypeIdentifierBodyMass", 
-		"HKQuantityTypeIdentifierHeartRate", 
-		"HKQuantityTypeIdentifierBodyTemperature", 
+
+	types := []string{
+		"HKQuantityTypeIdentifierBodyMass",
+		"HKQuantityTypeIdentifierHeartRate",
+		"HKQuantityTypeIdentifierBodyTemperature",
 		"HKQuantityTypeIdentifierStepCount",
 		"HKQuantityTypeIdentifierDistanceWalkingRunning",
 		"HKQuantityTypeIdentifierActiveEnergyBurned",
 		"HKQuantityTypeIdentifierFlightsClimbed",
-		"HKCategoryTypeIdentifierSleepAnalysis" }
+		"HKCategoryTypeIdentifierSleepAnalysis"}
 
 	return types
 }
@@ -54,7 +54,7 @@ func parseData(file string) (Query, error) {
 	if err != nil {
 		return q, err
 	}
-	
+
 	defer xmlFile.Close()
 
 	data, _ := ioutil.ReadAll(xmlFile)
@@ -64,38 +64,38 @@ func parseData(file string) (Query, error) {
 }
 
 func recordToCsv(r Record) []string {
-	return []string {r.Type, r.SourceName, r.SourceVersion, r.Device, r.Unit, r.CreationDate, r.StartDate, r.EndDate, r.Value}
+	return []string{r.Type, r.SourceName, r.SourceVersion, r.Device, r.Unit, r.CreationDate, r.StartDate, r.EndDate, r.Value}
 }
 
 func createCSV(typeName string, record []Record, fromDate string) error {
 	format := "2006-01-02 15:04:05"
-	date, _ := time.Parse(format,fromDate)
+	date, _ := time.Parse(format, fromDate)
 
 	file, err := os.Create(typeName + ".csv")
 
 	if err != nil {
-        return err
-    }
+		return err
+	}
 
-    defer file.Close()
+	defer file.Close()
 
-    writer := csv.NewWriter(file)
+	writer := csv.NewWriter(file)
 
-    for _, r := range record {
-    	creationDate, _ := time.Parse(format,strings.Replace(r.CreationDate, " +0000", "", -1))
-    	
-    	if r.Type == typeName && creationDate.After(date) {
-    		line := recordToCsv(r)
+	for _, r := range record {
+		creationDate, _ := time.Parse(format, strings.Replace(r.CreationDate, " +0000", "", -1))
+
+		if r.Type == typeName && creationDate.After(date) {
+			line := recordToCsv(r)
 			err := writer.Write(line)
 			if err != nil {
 				return err
-        	}
-    	}
-    }
+			}
+		}
+	}
 
-    defer writer.Flush()
+	defer writer.Flush()
 
-    return nil
+	return nil
 }
 
 func main() {
@@ -109,7 +109,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for _, t := range types() {
 		fmt.Printf("Exporting %s data... ", t)
 		err := createCSV(t, q.Record, fromDate)
@@ -119,5 +119,5 @@ func main() {
 		} else {
 			fmt.Println("done!")
 		}
-	}	
+	}
 }
