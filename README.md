@@ -1,2 +1,2 @@
 # go-health
-Parse Apple Health data with Go
+Parse Apple HealthKit data with Go and export to CSV files.
