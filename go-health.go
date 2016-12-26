@@ -42,6 +42,10 @@ func types() map[string]string {
 		"HKQuantityTypeIdentifierActiveEnergyBurned":     "6",
 		"HKQuantityTypeIdentifierFlightsClimbed":         "7",
 		"HKCategoryTypeIdentifierSleepAnalysis":          "8",
+		"HKQuantityTypeIdentifierBodyMassIndex":          "9",
+		"HKQuantityTypeIdentifierHeight":                 "10",
+		"HKQuantityTypeIdentifierBloodPressureDiastolic": "11",
+		"HKQuantityTypeIdentifierBloodPressureSystolic":  "12",
 	}
 
 	return types
@@ -75,7 +79,7 @@ func recordToCsv(r Record) []string {
 		v = r.Value
 	}
 
-	return []string{"", types()[r.Type], r.SourceName, r.SourceVersion, r.Device, r.Unit, r.CreationDate, r.StartDate, r.EndDate, v}
+	return []string{types()[r.Type], r.SourceName, r.SourceVersion, r.Device, r.Unit, r.CreationDate, r.StartDate, r.EndDate, v}
 }
 
 func createCSV(all bool, typeName string, record []Record, fromDate string) error {
